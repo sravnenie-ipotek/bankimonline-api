@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚨 REAL BUG: Mortgage Calculator Step 1 Immediate Failure</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 40px; background: #f5f5f5; }
+        .container { max-width: 1400px; margin: 0 auto; background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .critical-header { background: linear-gradient(135deg, #dc2626, #b91c1c); color: white; padding: 30px; border-radius: 12px; margin-bottom: 30px; text-align: center; }
+        .critical-header h1 { margin: 0; font-size: 2rem; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
+        .critical-header p { margin: 10px 0 0 0; opacity: 0.9; font-size: 1.1rem; }
+        
+        /* Correction Notice */
+        .correction-box { background: #fef3c7; border: 2px solid #f59e0b; padding: 20px; border-radius: 12px; margin: 20px 0; }
+        .correction-box h3 { color: #92400e; margin: 0 0 15px 0; }
+        .correction-box .wrong { color: #dc2626; text-decoration: line-through; }
+        .correction-box .correct { color: #059669; font-weight: bold; }
+        
+        /* Bug Card Styles */
+        .bug-card { background: white; border-radius: 12px; padding: 2rem; margin-bottom: 2rem; transition: all 0.3s ease; border-left: 6px solid #dc2626; box-shadow: 0 6px 20px rgba(220, 38, 38, 0.15); }
+        .bug-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 3px solid #f1f3f4; }
+        .bug-title { color: #1a202c; margin: 8px 0; font-size: 1.4rem; font-weight: 600; }
+        .bug-badges { display: flex; gap: 10px; flex-wrap: wrap; }
+        .badge { padding: 6px 12px; border-radius: 6px; font-size: 11px; font-weight: bold; text-transform: uppercase; }
+        .severity-critical { background: #dc2626; color: white; animation: pulse 2s infinite; }
+        .priority-p0 { background: #dc2626; color: white; }
+        .step1-failure { background: #7c2d12; color: white; }
+        
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
+        
+        .bug-meta { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; margin: 20px 0; }
+        .meta-item { background: #f8f9fa; padding: 15px; border-radius: 8px; border-left: 4px solid #dc2626; }
+        .meta-item strong { color: #2c3e50; }
+        .error-section { background: #fef2f2; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #dc2626; }
+        .error-code { background: #1f2937; color: #f9fafb; padding: 15px; border-radius: 6px; font-family: 'Courier New', monospace; overflow-x: auto; margin: 10px 0; font-size: 0.9rem; }
+        .steps-list { background: #f8f9fa; padding: 20px 20px 20px 40px; border-radius: 8px; margin: 15px 0; border-left: 4px solid #fbbf24; }
+        .steps-list li { margin: 10px 0; font-size: 1rem; }
+        
+        /* Timeline */
+        .timeline { margin: 20px 0; }
+        .timeline-item { display: flex; align-items: center; margin: 15px 0; }
+        .timeline-time { background: #dc2626; color: white; padding: 6px 12px; border-radius: 6px; font-size: 0.9rem; margin-right: 15px; min-width: 120px; font-weight: bold; }
+        .timeline-event { background: #f8f9fa; padding: 15px; border-radius: 8px; flex: 1; }
+        .timeline-success { border-left: 4px solid #16a34a; }
+        .timeline-error { border-left: 4px solid #dc2626; }
+        
+        /* Screenshots Section */
+        .screenshot-section { margin: 25px 0; padding: 25px; background: #e3f2fd; border-radius: 12px; border-left: 4px solid #2563eb; }
+        .screenshot-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 25px; margin-top: 25px; }
+        .screenshot-item { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-align: center; }
+        .screenshot-item h5 { margin: 0 0 15px 0; color: #2c3e50; font-size: 1rem; font-weight: 600; }
+        .screenshot-placeholder { width: 100%; height: 200px; background: linear-gradient(45deg, #f1f5f9, #e2e8f0); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #64748b; font-size: 1rem; flex-direction: column; font-weight: 600; }
+        .success-placeholder { background: linear-gradient(45deg, #dcfce7, #bbf7d0); color: #166534; }
+        .error-placeholder { background: linear-gradient(45deg, #fecaca, #fca5a5); color: #991b1b; }
+        
+        /* Media Controls */
+        .media-controls { margin-top: 20px; display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; }
+        .media-button { background: #2563eb; color: white; padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-size: 1rem; text-decoration: none; display: inline-block; font-weight: 600; transition: all 0.3s ease; }
+        .media-button:hover { background: #1d4ed8; transform: translateY(-2px); }
+        .media-button.view-image { background: #059669; }
+        .media-button.view-image:hover { background: #047857; }
+        .video-button { background: #dc2626; }
+        .video-button:hover { background: #b91c1c; }
+        
+        /* Video Section */
+        .video-section { margin: 30px 0; padding: 25px; background: #fef3f2; border-radius: 12px; border-left: 4px solid #dc2626; }
+        .video-container { text-align: center; margin: 20px 0; }
+        .video-player { width: 100%; max-width: 900px; height: 500px; border-radius: 12px; box-shadow: 0 8px 25px rgba(0,0,0,0.3); }
+        
+        /* Bug Actions */
+        .bug-actions { margin: 30px 0; padding: 25px; background: #f0fdf4; border-radius: 12px; border-left: 4px solid #10b981; }
+        .bug-actions h4 { color: #047857; margin-bottom: 20px; font-size: 1.3rem; }
+        .action-buttons { display: flex; gap: 15px; flex-wrap: wrap; }
+        .action-button { background: #10b981; color: white; padding: 15px 30px; border: none; border-radius: 10px; cursor: pointer; font-size: 1.1rem; text-decoration: none; display: inline-block; font-weight: 600; transition: all 0.3s ease; }
+        .action-button:hover { background: #059669; transform: translateY(-2px); }
+        .action-button.jira { background: #0052cc; }
+        .action-button.jira:hover { background: #0747a6; }
+        .action-button.github { background: #24292e; }
+        .action-button.github:hover { background: #1b1f23; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="critical-header">
+            <h1>🚨 CORRECTED BUG REPORT</h1>
+            <p>Mortgage Calculator Step 1 - Immediate Test Failure (Never Reaches Step 3)</p>
+            <p><strong>REAL Issue:</strong> Test fails immediately after loading Step 1</p>
+        </div>
+        
+        <div class="correction-box">
+            <h3>🔧 CRITICAL CORRECTIONS TO PREVIOUS REPORT:</h3>
+            <p><span class="wrong">❌ WRONG: "Test reaches Step 3 and dropdowns fail"</span></p>
+            <p><span class="correct">✅ CORRECT: Test fails immediately on Step 1, never progresses to Step 2 or Step 3</span></p>
+            
+            <p><span class="wrong">❌ WRONG: "Step 3 dropdowns broken"</span></p>
+            <p><span class="correct">✅ CORRECT: Step 1 loading causes "undefined" errors in test framework</span></p>
+            
+            <p><span class="wrong">❌ WRONG: "Missing Step 3 screenshots"</span></p>
+            <p><span class="correct">✅ CORRECT: All 6 screenshots are Step 1 attempts - test never reached Step 3</span></p>
+        </div>
+        
+        <div class="bug-card" data-bug-id="MORT-STEP1-001" data-severity="CRITICAL" data-blocking="true">
+            <div class="bug-header">
+                <div class="bug-title-section">
+                    <span style="background: #dc2626; color: white; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: bold; margin-right: 12px;">#MORT-STEP1-001</span>
+                    <h3 class="bug-title">Mortgage Calculator Step 1 - Test Framework Immediate Failure</h3>
+                </div>
+                <div class="bug-badges">
+                    <span class="badge severity-critical">CRITICAL</span>
+                    <span class="badge priority-p0">P0</span>
+                    <span class="badge step1-failure">STEP 1 BLOCKER</span>
+                </div>
+            </div>
+            
+            <div class="bug-meta">
+                <div class="meta-item"><strong>Failure Point:</strong> Step 1 loading - immediate test failure</div>
+                <div class="meta-item"><strong>Error Pattern:</strong> Load → Undefined Error → Retry (3x)</div>
+                <div class="meta-item"><strong>Test File:</strong> mortgage-calculator-simple-working.cy.ts</div>
+                <div class="meta-item"><strong>Browser:</strong> Chrome 139 (headless)</div>
+                <div class="meta-item"><strong>Max Step Reached:</strong> Step 1 only (never progressed)</div>
+                <div class="meta-item"><strong>Total Failures:</strong> 3 attempts, all on Step 1</div>
+            </div>
+            
+            <div class="error-section">
+                <h4>🔍 ACTUAL Error Sequence:</h4>
+                <div class="error-code">
+TypeError: Cannot read properties of null (reading 'attributes')
+  at $Cypress.eval (http://localhost:5174/__cypress/tests?p=cypress/support/e2e.ts:481:77)
+  
+OCCURS: Immediately after Step 1 loads
+PATTERN: Load Step 1 → Error → Retry → Error → Retry → Final Error
+RESULT: Test terminates without reaching Step 2
+                </div>
+                <p><strong>Root Cause:</strong> Cypress test framework hits null element immediately after Step 1 page load, preventing any further navigation.</p>
+            </div>
+            
+            <div style="margin: 25px 0;">
+                <h4>🔄 CORRECTED Steps to Reproduce:</h4>
+                <ol class="steps-list">
+                    <li>Run Cypress test: <code>cypress run --spec "mortgage-calculator-simple-working.cy.ts"</code></li>
+                    <li>Test navigates to <code>/services/calculate-mortgage/1</code></li>
+                    <li>Step 1 page loads successfully (screenshot captured)</li>
+                    <li><strong>IMMEDIATE FAILURE:</strong> Test hits "undefined" error 1 second later</li>
+                    <li>Cypress auto-retries Step 1 loading</li>
+                    <li>Same pattern repeats 3 times: Load → Error → Retry</li>
+                    <li><strong>FINAL RESULT:</strong> Test terminates, never reaches Step 2 or Step 3</li>
+                </ol>
+            </div>
+            
+            <div class="timeline">
+                <h4>📋 ACTUAL Test Timeline (All Step 1):</h4>
+                <div class="timeline-item">
+                    <div class="timeline-time">14:26:06</div>
+                    <div class="timeline-event timeline-success">✅ Step 1 loads successfully (Screenshot #1)</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-time">14:26:07</div>
+                    <div class="timeline-event timeline-error">❌ Undefined error #1 (Screenshot #2)</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-time">14:26:13</div>
+                    <div class="timeline-event timeline-success">🔄 Step 1 retry attempt #1 (Screenshot #3)</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-time">14:26:14</div>
+                    <div class="timeline-event timeline-error">❌ Undefined error #2 (Screenshot #4)</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-time">14:26:20</div>
+                    <div class="timeline-event timeline-success">🔄 Step 1 retry attempt #2 (Screenshot #5)</div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-time">14:26:21</div>
+                    <div class="timeline-event timeline-error">❌ Final undefined error, test terminates (Screenshot #6)</div>
+                </div>
+            </div>
+            
+            <div class="screenshot-section">
+                <h4>📸 ALL 6 Screenshots - Complete Step 1 Failure Sequence</h4>
+                <p><strong>Pattern:</strong> 3 Step 1 loads + 3 Undefined errors (never progresses past Step 1)</p>
+                
+                <div class="screenshot-grid">
+                    <div class="screenshot-item">
+                        <h5>Screenshot 1: Step 1 Success</h5>
+                        <div class="screenshot-placeholder success-placeholder">
+                            Step 1 Initial Load<br>
+                            ✅ SUCCESS<br>
+                            14:26:06<br>
+                            (1280x1331)
+                        </div>
+                        <div class="media-controls">
+                            <a href="file:///Users/michaelmishayev/Projects/bankDev2_standalone/mainapp/cypress/screenshots/run-2025-08-16T14-25-58/mortgage-calculator-simple-working.cy.ts/mortgage-calculator-simple-working_01-step1-loaded_2025-08-16T14-26-06.png" class="media-button view-image">🖼️ View Screenshot</a>
+                        </div>
+                    </div>
+                    
+                    <div class="screenshot-item">
+                        <h5>Screenshot 2: Immediate Error</h5>
+                        <div class="screenshot-placeholder error-placeholder">
+                            Undefined Error #1<br>
+                            ❌ FAILURE<br>
+                            14:26:07<br>
+                            (1280x633)
+                        </div>
+                        <div class="media-controls">
+                            <a href="file:///Users/michaelmishayev/Projects/bankDev2_standalone/mainapp/cypress/screenshots/run-2025-08-16T14-25-58/mortgage-calculator-simple-working.cy.ts/mortgage-calculator-simple-working_undefined_2025-08-16T14-26-07.png" class="media-button view-image">🖼️ View Error</a>
+                        </div>
+                    </div>
+                    
+                    <div class="screenshot-item">
+                        <h5>Screenshot 3: Retry #1</h5>
+                        <div class="screenshot-placeholder success-placeholder">
+                            Step 1 Retry<br>
+                            🔄 RELOAD<br>
+                            14:26:13<br>
+                            (1280x1331)
+                        </div>
+                        <div class="media-controls">
+                            <a href="file:///Users/michaelmishayev/Projects/bankDev2_standalone/mainapp/cypress/screenshots/run-2025-08-16T14-25-58/mortgage-calculator-simple-working.cy.ts/mortgage-calculator-simple-working_01-step1-loaded_2025-08-16T14-26-13.png" class="media-button view-image">🖼️ View Retry</a>
+                        </div>
+                    </div>
+                    
+                    <div class="screenshot-item">
+                        <h5>Screenshot 4: Error #2</h5>
+                        <div class="screenshot-placeholder error-placeholder">
+                            Undefined Error #2<br>
+                            ❌ FAILURE<br>
+                            14:26:14<br>
+                            (1280x633)
+                        </div>
+                        <div class="media-controls">
+                            <a href="file:///Users/michaelmishayev/Projects/bankDev2_standalone/mainapp/cypress/screenshots/run-2025-08-16T14-25-58/mortgage-calculator-simple-working.cy.ts/mortgage-calculator-simple-working_undefined_2025-08-16T14-26-14.png" class="media-button view-image">🖼️ View Error</a>
+                        </div>
+                    </div>
+                    
+                    <div class="screenshot-item">
+                        <h5>Screenshot 5: Final Retry</h5>
+                        <div class="screenshot-placeholder success-placeholder">
+                            Step 1 Final Try<br>
+                            🔄 LAST ATTEMPT<br>
+                            14:26:20<br>
+                            (1280x1331)
+                        </div>
+                        <div class="media-controls">
+                            <a href="file:///Users/michaelmishayev/Projects/bankDev2_standalone/mainapp/cypress/screenshots/run-2025-08-16T14-25-58/mortgage-calculator-simple-working.cy.ts/mortgage-calculator-simple-working_01-step1-loaded_2025-08-16T14-26-20.png" class="media-button view-image">🖼️ View Final</a>
+                        </div>
+                    </div>
+                    
+                    <div class="screenshot-item">
+                        <h5>Screenshot 6: Test Termination</h5>
+                        <div class="screenshot-placeholder error-placeholder">
+                            Final Error<br>
+                            ❌ TEST ENDS<br>
+                            14:26:21<br>
+                            (1280x633)
+                        </div>
+                        <div class="media-controls">
+                            <a href="file:///Users/michaelmishayev/Projects/bankDev2_standalone/mainapp/cypress/screenshots/run-2025-08-16T14-25-58/mortgage-calculator-simple-working.cy.ts/mortgage-calculator-simple-working_undefined_2025-08-16T14-26-21.png" class="media-button view-image">🖼️ View Failure</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="video-section">
+                <h4>🎬 COMPLETE Test Execution Video (5.5MB)</h4>
+                <p>Full video showing the Step 1 load → error → retry pattern (3 cycles):</p>
+                <div class="video-container">
+                    <video class="video-player" controls preload="metadata">
+                        <source src="file:///Users/michaelmishayev/Projects/bankDev2_standalone/mainapp/cypress/videos/mortgage-calculator-simple-working.cy.ts (1).mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+                <div style="text-align: center; margin-top: 20px;">
+                    <a href="file:///Users/michaelmishayev/Projects/bankDev2_standalone/mainapp/cypress/videos/mortgage-calculator-simple-working.cy.ts (1).mp4" class="media-button video-button">📹 Open Video (5.5MB)</a>
+                    <button onclick="document.querySelector('.video-player').requestFullscreen()" class="media-button">🖥️ Fullscreen</button>
+                    <button onclick="document.querySelector('.video-player').play()" class="media-button">▶️ Play</button>
+                </div>
+            </div>
+            
+            <div style="background: #fff3cd; padding: 25px; border-radius: 8px; margin: 25px 0; border-left: 4px solid #f59e0b;">
+                <h4 style="color: #b45309; margin-bottom: 20px;">🏗️ Technical Analysis:</h4>
+                <div style="display: grid; gap: 15px;">
+                    <div style="background: rgba(255,255,255,0.8); padding: 15px; border-radius: 8px;">
+                        <strong>Issue Type:</strong> Test Infrastructure - Cypress DOM element access failure on Step 1
+                    </div>
+                    <div style="background: rgba(255,255,255,0.8); padding: 15px; border-radius: 8px;">
+                        <strong>Failure Pattern:</strong> Consistent - Step 1 loads, then immediate "undefined" error
+                    </div>
+                    <div style="background: rgba(255,255,255,0.8); padding: 15px; border-radius: 8px;">
+                        <strong>Test Progression:</strong> <span style="color: #dc2626; font-weight: bold;">BLOCKED at Step 1 - Cannot validate Steps 2, 3, or 4</span>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.8); padding: 15px; border-radius: 8px;">
+                        <strong>Application Status:</strong> <span style="color: #16a34a; font-weight: bold;">UNKNOWN - Cannot validate due to test failure</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bug-actions">
+            <h4>🎯 Real Bug Ticket Creation</h4>
+            <p>Create actual tickets in your issue tracking systems:</p>
+            <div class="action-buttons">
+                <button onclick="createRealJiraTicket()" class="action-button jira">🎫 Create JIRA Ticket</button>
+                <button onclick="createRealGitHubIssue()" class="action-button github">📝 Create GitHub Issue</button>
+                <button onclick="exportReport()" class="action-button">📄 Export PDF Report</button>
+                <button onclick="emailReport()" class="action-button">📧 Email to Dev Team</button>
+            </div>
+        </div>
+        
+        <div style="margin-top: 40px; padding: 30px; background: linear-gradient(135deg, #dc2626, #b91c1c); color: white; border-radius: 12px; text-align: center;">
+            <h2>🔧 CORRECTED CONCLUSION</h2>
+            <p><strong>Test fails immediately on Step 1 - Never reaches Step 3 as originally claimed</strong></p>
+            <p>Cannot validate mortgage calculator Steps 2, 3, or 4 due to test infrastructure blocking</p>
+            <p><strong>Priority:</strong> P0 | <strong>Severity:</strong> Critical (Blocks all QA validation)</p>
+        </div>
+        
+        <div style="margin-top: 30px; padding-top: 20px; border-top: 2px solid #eee; color: #666; text-align: center;">
+            <p><strong>🔍 CORRECTED QA Report:</strong> 2025-08-16 by Enhanced QA Automation</p>
+            <p><strong>📂 Evidence:</strong> 6 Screenshots (3 Step 1 loads + 3 undefined errors) + 5.5MB Video</p>
+            <p><strong>🎯 User Request:</strong> "runqa check if there is bugs especcially in http://localhost:4003/services/calculate-mortgage/3 think hard"</p>
+            <p><strong>🔧 Actual Result:</strong> Cannot reach Step 3 - test fails on Step 1</p>
+        </div>
+    </div>
+
+    <script>
+        function createRealJiraTicket() {
+            // Real JIRA API call would go here
+            const jiraData = {
+                "fields": {
+                    "project": { "key": "MORT" },
+                    "summary": "Cypress Test Infrastructure - Step 1 Immediate Failure",
+                    "description": "Test fails immediately after loading Step 1 with TypeError: Cannot read properties of null (reading 'attributes')",
+                    "issuetype": { "name": "Bug" },
+                    "priority": { "name": "Critical" },
+                    "labels": ["test-infrastructure", "cypress", "mortgage-calculator"],
+                    "components": [{ "name": "Test Framework" }]
+                }
+            };
+            
+            // Show what would be sent to JIRA
+            navigator.clipboard.writeText(JSON.stringify(jiraData, null, 2));
+            alert("JIRA ticket data copied to clipboard! Paste into your JIRA API call.");
+        }
+        
+        function createRealGitHubIssue() {
+            const githubData = {
+                "title": "[Test Infrastructure] Cypress Step 1 immediate failure - mortgage calculator",
+                "body": "## Bug Description\\n\\nCypress test fails immediately after loading mortgage calculator Step 1.\\n\\n## Error\\n\\n```\\nTypeError: Cannot read properties of null (reading 'attributes')\\nat $Cypress.eval (cypress_runner.js:481:77)\\n```\\n\\n## Evidence\\n\\n- 6 screenshots showing Step 1 load → error pattern\\n- Video recording of failure sequence\\n- Test never progresses past Step 1\\n\\n## Impact\\n\\nBlocks all mortgage calculator QA validation.",
+                "labels": ["bug", "test-infrastructure", "cypress", "p0"],
+                "assignees": ["qa-team"]
+            };
+            
+            navigator.clipboard.writeText(JSON.stringify(githubData, null, 2));
+            alert("GitHub issue data copied to clipboard! Use with GitHub API.");
+        }
+        
+        function exportReport() {
+            window.print(); // This will allow saving as PDF
+        }
+        
+        function emailReport() {
+            const subject = encodeURIComponent("CRITICAL: Mortgage Calculator Step 1 Test Failure");
+            const body = encodeURIComponent("The mortgage calculator test is failing immediately on Step 1. See attached bug report for complete details with 6 screenshots and video evidence.");
+            window.location.href = `mailto:dev-team@company.com?subject=${subject}&body=${body}`;
+        }
+    </script>
+</body>
+</html>
