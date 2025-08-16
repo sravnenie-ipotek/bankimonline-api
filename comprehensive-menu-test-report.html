@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Comprehensive Menu Test Report - Critical Issues Found</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container { max-width: 1600px; margin: 0 auto; }
+        .header { 
+            background: white; 
+            padding: 30px; 
+            border-radius: 15px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+        }
+        .header h1 { 
+            font-size: 2.5em; 
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+        .critical-alert {
+            background: #fee2e2;
+            border: 2px solid #ef4444;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        .critical-alert h2 {
+            color: #ef4444;
+            margin-bottom: 10px;
+        }
+        .critical-test {
+            background: white;
+            margin: 20px 0;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border-left: 5px solid #ef4444;
+        }
+        .test-steps {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f9fafb;
+            border-radius: 8px;
+        }
+        .step {
+            padding: 8px 0;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .step:last-child { border-bottom: none; }
+        .step-pass { color: #10b981; font-weight: bold; }
+        .step-fail { color: #ef4444; font-weight: bold; }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 3em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .stat-label { color: #666; font-size: 0.9em; }
+        .success { color: #10b981; }
+        .warning { color: #f59e0b; }
+        .error { color: #ef4444; }
+        .info { color: #3b82f6; }
+        .section {
+            background: white;
+            margin: 20px 0;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .section h2 {
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            color: #333;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+        .issue-card {
+            background: #fef2f2;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border-left: 4px solid #ef4444;
+        }
+        .btn {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: opacity 0.3s;
+            margin: 5px;
+        }
+        .btn:hover { opacity: 0.9; }
+        .btn-danger { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); }
+        .bug-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .confluence-link {
+            display: inline-block;
+            padding: 8px 15px;
+            background: #0052CC;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .confluence-link:hover { background: #0747A6; }
+        .severity-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: bold;
+            color: white;
+            margin-left: 10px;
+        }
+        .severity-critical { background: #ef4444; }
+        .severity-high { background: #f59e0b; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        th {
+            background: #f9fafb;
+            font-weight: 600;
+            color: #374151;
+        }
+        #jiraModal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        #jiraModal.show { display: flex; }
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        .modal-header { 
+            font-size: 1.5em; 
+            margin-bottom: 15px;
+            color: #333;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .modal-body { 
+            margin: 20px 0;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #374151;
+        }
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        .modal-footer {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+        }
+        .close-btn:hover { color: #333; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⚠️ CRITICAL ISSUES FOUND - Menu Navigation Test Report</h1>
+            <p style="color: #666;">Generated: ${new Date().toISOString()}</p>
+            <p style="color: #666;">Banking Application QA - Complete Menu & Navigation Testing</p>
+            <a href="https://bankimonline.atlassian.net/wiki/spaces/Bankim/pages/48332829/2" target="_blank" class="confluence-link">
+                📋 View Confluence Documentation
+            </a>
+        </div>
+        
+        <div class="critical-alert">
+            <h2>🚨 CRITICAL BUG STILL EXISTS</h2>
+            <p><strong>Navigation Bug NOT Fixed:</strong> Menu button still disappears after navigating from service pages back to home via logo!</p>
+            <p style="margin-top: 10px;">This is a severe UI/UX issue that prevents users from accessing the menu without refreshing the page.</p>
+        </div>
+        
+        <div class="critical-test">
+            <h2>🐛 Critical Navigation Bug Test - FAILED</h2>
+            <p style="color: #666; margin: 10px 0;">
+                <strong>Issue:</strong> Menu button disappears after navigating from service pages back to home via logo<br>
+                <strong>Status:</strong> <span class="error" style="font-size: 1.2em; font-weight: bold;">❌ NOT FIXED</span>
+            </p>
+            
+            <div class="test-steps">
+                <h3>Test Steps:</h3>
+                <div class="step">
+                    <span>Navigate to homepage</span>
+                    <span class="step-pass">PASS</span>
+                </div>
+                <div class="step">
+                    <span>Open menu</span>
+                    <span class="step-pass">PASS</span>
+                </div>
+                <div class="step">
+                    <span>Click Services menu</span>
+                    <span class="step-pass">PASS</span>
+                </div>
+                <div class="step">
+                    <span>Navigate to Mortgage Calculator</span>
+                    <span class="step-pass">PASS</span>
+                </div>
+                <div class="step">
+                    <span>Click logo to go home</span>
+                    <span class="step-pass">PASS</span>
+                </div>
+                <div class="step">
+                    <span>Burger button visible after navigation</span>
+                    <span class="step-fail">FAIL</span>
+                </div>
+            </div>
+            
+            <div style="margin-top: 20px;">
+                <h3>Steps to Reproduce:</h3>
+                <ol style="margin-left: 20px; line-height: 1.8;">
+                    <li>Navigate to homepage (http://localhost:5173)</li>
+                    <li>Click the hamburger menu button to open the menu</li>
+                    <li>Navigate to "השירותים שלנו" (Our Services)</li>
+                    <li>Click on "חישוב משכנתא" (Mortgage Calculator)</li>
+                    <li>Click the logo to navigate back to homepage</li>
+                    <li>Try to open the menu - <strong>Button is not visible!</strong></li>
+                </ol>
+            </div>
+            
+            <div style="margin-top: 20px;">
+                <h3>Expected Result:</h3>
+                <p>Menu button should be visible and functional after navigating back to homepage via logo</p>
+                
+                <h3 style="margin-top: 15px;">Actual Result:</h3>
+                <p style="color: #ef4444;">Menu button disappears and requires page refresh to restore functionality</p>
+            </div>
+            
+            <div class="bug-actions">
+                <button class="btn btn-danger" onclick="openJiraModal('navigation-bug', 'critical')">
+                    🐛 Create Critical Bug in Jira
+                </button>
+                <button class="btn" onclick="investigateFurther('navigation-bug')">
+                    🔍 Investigate Further
+                </button>
+            </div>
+        </div>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number info">34</div>
+                <div class="stat-label">Links Found</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number warning">5</div>
+                <div class="stat-label">Links Tested</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number error">5</div>
+                <div class="stat-label">Navigation Errors</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number error">1</div>
+                <div class="stat-label">Critical Bugs</div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>💔 Navigation Errors Detected</h2>
+            <p style="color: #666; margin-bottom: 20px;">Menu items were found but couldn't be clicked (element outside viewport)</p>
+            
+            <div class="issue-card">
+                <strong>אודות (About)</strong>
+                <span class="severity-badge severity-high">HIGH</span><br>
+                <span style="color: #666;">HREF:</span> /about<br>
+                <span style="color: #666;">Error:</span> Element is outside of the viewport - menu not properly displayed
+                <div class="bug-actions">
+                    <button class="btn btn-danger" onclick="openJiraModal('menu-display', 'high')">
+                        🐛 Create Bug
+                    </button>
+                </div>
+            </div>
+            
+            <div class="issue-card">
+                <strong>זכיון זמני למתווכים (Real Estate Brokerage)</strong>
+                <span class="severity-badge severity-high">HIGH</span><br>
+                <span style="color: #666;">HREF:</span> /Real-Estate-Brokerage<br>
+                <span style="color: #666;">Error:</span> Element is outside of the viewport
+            </div>
+            
+            <div class="issue-card">
+                <strong>משרות (Vacancies)</strong>
+                <span class="severity-badge severity-high">HIGH</span><br>
+                <span style="color: #666;">HREF:</span> /vacancies<br>
+                <span style="color: #666;">Error:</span> Element is outside of the viewport
+            </div>
+            
+            <div class="issue-card">
+                <strong>צור קשר (Contacts)</strong>
+                <span class="severity-badge severity-high">HIGH</span><br>
+                <span style="color: #666;">HREF:</span> /contacts<br>
+                <span style="color: #666;">Error:</span> Element is outside of the viewport
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>📋 Summary & Recommendations</h2>
+            <table>
+                <tr>
+                    <td><strong>Test Date:</strong></td>
+                    <td>${new Date().toLocaleDateString()}</td>
+                </tr>
+                <tr>
+                    <td><strong>Navigation Bug Status:</strong></td>
+                    <td><span class="error">❌ NOT FIXED - Critical Issue</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Menu Display Issues:</strong></td>
+                    <td><span class="error">❌ Elements outside viewport</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Overall Test Status:</strong></td>
+                    <td><span class="error">❌ FAILED - Multiple Critical Issues</span></td>
+                </tr>
+            </table>
+            
+            <h3 style="margin-top: 20px;">🔧 Required Fixes:</h3>
+            <ol style="margin-left: 20px; line-height: 1.8;">
+                <li><strong>CRITICAL:</strong> Fix the burger menu visibility issue after navigation</li>
+                <li><strong>HIGH:</strong> Fix menu display so items are within viewport and clickable</li>
+                <li><strong>MEDIUM:</strong> Ensure menu state persists correctly across navigation</li>
+                <li><strong>RECOMMENDATION:</strong> Add comprehensive E2E tests for menu navigation</li>
+            </ol>
+        </div>
+    </div>
+
+    <!-- Jira Bug Creation Modal -->
+    <div id="jiraModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span>🐛 Create Jira Bug</span>
+                <button class="close-btn" onclick="closeJiraModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <form id="jiraForm">
+                    <div class="form-group">
+                        <label>Summary*</label>
+                        <input type="text" id="jiraSummary" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Priority*</label>
+                        <select id="jiraPriority" required>
+                            <option value="Critical">Critical</option>
+                            <option value="High">High</option>
+                            <option value="Medium">Medium</option>
+                            <option value="Low">Low</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Issue Type*</label>
+                        <select id="jiraIssueType" required>
+                            <option value="Bug">Bug</option>
+                            <option value="Task">Task</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Description*</label>
+                        <textarea id="jiraDescription" required rows="8"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Steps to Reproduce</label>
+                        <textarea id="jiraSteps" rows="5"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Expected Result</label>
+                        <textarea id="jiraExpected" rows="3"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Actual Result</label>
+                        <textarea id="jiraActual" rows="3"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" onclick="closeJiraModal()">Cancel</button>
+                <button class="btn btn-danger" onclick="confirmCreateJiraBug()">Create Bug</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openJiraModal(issueType, severity) {
+            if (issueType === 'navigation-bug') {
+                document.getElementById('jiraSummary').value = '[CRITICAL] Menu button disappears after navigating from service pages';
+                document.getElementById('jiraPriority').value = 'Critical';
+                document.getElementById('jiraIssueType').value = 'Bug';
+                document.getElementById('jiraDescription').value = `
+CRITICAL UI/UX BUG: Menu Navigation Broken
+
+When navigating from service pages (e.g., Mortgage Calculator) back to the homepage using the logo, the hamburger menu button disappears or becomes non-functional.
+
+This prevents users from accessing the menu without refreshing the page.
+
+Environment:
+- URL: http://localhost:5173
+- Test Date: ${new Date().toISOString()}
+- Browser: Chrome (Playwright)
+- Severity: CRITICAL - Blocks main navigation functionality
+                `.trim();
+                
+                document.getElementById('jiraSteps').value = `
+1. Navigate to homepage (http://localhost:5173)
+2. Click hamburger menu button to open menu
+3. Navigate to "השירותים שלנו" (Our Services)
+4. Click on "חישוב משכנתא" (Mortgage Calculator)
+5. Click the logo to navigate back to homepage
+6. Try to open the menu
+                `.trim();
+                
+                document.getElementById('jiraExpected').value = 'Menu button should be visible and functional after navigation';
+                document.getElementById('jiraActual').value = 'Menu button is not visible and requires page refresh to restore functionality';
+                
+            } else if (issueType === 'menu-display') {
+                document.getElementById('jiraSummary').value = 'Menu items outside viewport - cannot be clicked';
+                document.getElementById('jiraPriority').value = 'High';
+                document.getElementById('jiraDescription').value = 'Menu items are detected but cannot be clicked because they are outside the viewport. This suggests the menu panel is not properly positioned on screen.';
+            }
+            
+            document.getElementById('jiraModal').classList.add('show');
+        }
+
+        function closeJiraModal() {
+            document.getElementById('jiraModal').classList.remove('show');
+        }
+
+        function confirmCreateJiraBug() {
+            const formData = {
+                summary: document.getElementById('jiraSummary').value,
+                priority: document.getElementById('jiraPriority').value,
+                issueType: document.getElementById('jiraIssueType').value,
+                description: document.getElementById('jiraDescription').value,
+                steps: document.getElementById('jiraSteps').value,
+                expected: document.getElementById('jiraExpected').value,
+                actual: document.getElementById('jiraActual').value
+            };
+            
+            console.log('Creating Jira bug:', formData);
+            alert(`JIRA BUG WOULD BE CREATED:\n\nSummary: ${formData.summary}\nPriority: ${formData.priority}\n\nNote: Actual Jira API integration requires credentials.`);
+            closeJiraModal();
+        }
+
+        function investigateFurther(type) {
+            if (type === 'navigation-bug') {
+                alert(`INVESTIGATION NEEDED:\n\n1. Check Header.tsx component state management\n2. Verify burger button visibility conditions\n3. Check if isService flag is properly reset\n4. Review Layout.tsx mobile menu state\n5. Test with different navigation patterns\n\nThe fix attempt did not resolve the issue.`);
+            }
+        }
+    </script>
+</body>
+</html>
